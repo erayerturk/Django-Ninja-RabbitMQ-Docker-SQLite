@@ -1,0 +1,34 @@
+version: "3.3"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    container_name: 'rabbitmq'
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - rabbitmq_go_net
+  backend:
+    build: ys
+    container_name: 'ysbackend'
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=admin
+    volumes:
+      - ./ys:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq_go_net
+      
+networks:
+  rabbitmq_go_net:
+    driver: bridge
